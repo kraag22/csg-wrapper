@@ -23,35 +23,34 @@ THREE.CSG = {
 		} else if ( three_model instanceof THREE.Geometry ) {
 			geometry = three_model;
 			offset = offset || new THREE.Vector3( 0, 0, 0 );
-			rotation = rotation || new THREE.Vector3( 0, 0, 0 );
+			rotation = rotation || new THREE.Euler( 0, 0, 0 );
 		} else {
 			throw 'Model type not supported.';
 		}
-		rotation_matrix = new THREE.Matrix4( ).setRotationFromEuler( rotation );
+		rotation_matrix = new THREE.Matrix4( ).makeRotationFromEuler( rotation );
 		
 		var polygons = [];
 		for ( i = 0; i < geometry.faces.length; i++ ) {
 			if ( geometry.faces[i] instanceof THREE.Face3 ) {
 				
-				
 				vertices = [];
-				vertices.push( new CSG.Vertex( rotation_matrix.multiplyVector3( geometry.vertices[geometry.faces[i].a].position.clone( ).addSelf( offset ) ), [ geometry.faces[i].normal.x, geometry.faces[i].normal.y, geometry.faces[i].normal.z ] ) );
-				vertices.push( new CSG.Vertex( rotation_matrix.multiplyVector3( geometry.vertices[geometry.faces[i].b].position.clone( ).addSelf( offset ) ), [ geometry.faces[i].normal.x, geometry.faces[i].normal.y, geometry.faces[i].normal.z ] ) );
-				vertices.push( new CSG.Vertex( rotation_matrix.multiplyVector3( geometry.vertices[geometry.faces[i].c].position.clone( ).addSelf( offset ) ), [ geometry.faces[i].normal.x, geometry.faces[i].normal.y, geometry.faces[i].normal.z ] ) );
+				vertices.push( new CSG.Vertex( geometry.vertices[geometry.faces[i].a].clone( ).add( offset ).applyMatrix4(rotation_matrix), [ geometry.faces[i].normal.x, geometry.faces[i].normal.y, geometry.faces[i].normal.z ] ) );
+				vertices.push( new CSG.Vertex( geometry.vertices[geometry.faces[i].b].clone( ).add( offset ).applyMatrix4(rotation_matrix), [ geometry.faces[i].normal.x, geometry.faces[i].normal.y, geometry.faces[i].normal.z ] ) );
+				vertices.push( new CSG.Vertex( geometry.vertices[geometry.faces[i].c].clone( ).add( offset ).applyMatrix4(rotation_matrix), [ geometry.faces[i].normal.x, geometry.faces[i].normal.y, geometry.faces[i].normal.z ] ) );
 				polygons.push( new CSG.Polygon( vertices ) );
 				
 			} else if ( geometry.faces[i] instanceof THREE.Face4 ) {
 				
 				vertices = [];
-				vertices.push( new CSG.Vertex( rotation_matrix.multiplyVector3( geometry.vertices[geometry.faces[i].a].position.clone( ).addSelf( offset ) ), [ geometry.faces[i].normal.x, geometry.faces[i].normal.y, geometry.faces[i].normal.z ] ) );
-				vertices.push( new CSG.Vertex( rotation_matrix.multiplyVector3( geometry.vertices[geometry.faces[i].b].position.clone( ).addSelf( offset ) ), [ geometry.faces[i].normal.x, geometry.faces[i].normal.y, geometry.faces[i].normal.z ] ) );
-				vertices.push( new CSG.Vertex( rotation_matrix.multiplyVector3( geometry.vertices[geometry.faces[i].d].position.clone( ).addSelf( offset ) ), [ geometry.faces[i].normal.x, geometry.faces[i].normal.y, geometry.faces[i].normal.z ] ) );
+				vertices.push( new CSG.Vertex( geometry.vertices[geometry.faces[i].a].clone( ).add( offset ).applyMatrix4(rotation_matrix), [ geometry.faces[i].normal.x, geometry.faces[i].normal.y, geometry.faces[i].normal.z ] ) );
+				vertices.push( new CSG.Vertex( geometry.vertices[geometry.faces[i].b].clone( ).add( offset ).applyMatrix4(rotation_matrix), [ geometry.faces[i].normal.x, geometry.faces[i].normal.y, geometry.faces[i].normal.z ] ) );
+				vertices.push( new CSG.Vertex( geometry.vertices[geometry.faces[i].d].clone( ).add( offset ).applyMatrix4(rotation_matrix), [ geometry.faces[i].normal.x, geometry.faces[i].normal.y, geometry.faces[i].normal.z ] ) );
 				polygons.push( new CSG.Polygon( vertices ) );
 				
 				vertices = [];
-				vertices.push( new CSG.Vertex( rotation_matrix.multiplyVector3( geometry.vertices[geometry.faces[i].b].position.clone( ).addSelf( offset ) ), [ geometry.faces[i].normal.x, geometry.faces[i].normal.y, geometry.faces[i].normal.z ] ) );
-				vertices.push( new CSG.Vertex( rotation_matrix.multiplyVector3( geometry.vertices[geometry.faces[i].c].position.clone( ).addSelf( offset ) ), [ geometry.faces[i].normal.x, geometry.faces[i].normal.y, geometry.faces[i].normal.z ] ) );
-				vertices.push( new CSG.Vertex( rotation_matrix.multiplyVector3( geometry.vertices[geometry.faces[i].d].position.clone( ).addSelf( offset ) ), [ geometry.faces[i].normal.x, geometry.faces[i].normal.y, geometry.faces[i].normal.z ] ) );
+				vertices.push( new CSG.Vertex( geometry.vertices[geometry.faces[i].b].clone( ).add( offset ).applyMatrix4(rotation_matrix), [ geometry.faces[i].normal.x, geometry.faces[i].normal.y, geometry.faces[i].normal.z ] ) );
+				vertices.push( new CSG.Vertex( geometry.vertices[geometry.faces[i].c].clone( ).add( offset ).applyMatrix4(rotation_matrix), [ geometry.faces[i].normal.x, geometry.faces[i].normal.y, geometry.faces[i].normal.z ] ) );
+				vertices.push( new CSG.Vertex( geometry.vertices[geometry.faces[i].d].clone( ).add( offset ).applyMatrix4(rotation_matrix), [ geometry.faces[i].normal.x, geometry.faces[i].normal.y, geometry.faces[i].normal.z ] ) );
 				polygons.push( new CSG.Polygon( vertices ) );
 				
 			} else {
@@ -85,7 +84,7 @@ THREE.CSG = {
 			for (var j = 2; j < vertices.length; j++) {
 				face = new THREE.Face3( vertices[0], vertices[j-1], vertices[j], new THREE.Vector3( ).copy( polygons[i].plane.normal ) );
 				three_geometry.faces.push( face );
-				three_geometry.faceVertexUvs[0].push( new THREE.UV( ) );
+				three_geometry.faceVertexUvs[0].push( new THREE.Vector2( ) );
 			}
 		}
 		
@@ -97,13 +96,13 @@ THREE.CSG = {
 	getGeometryVertice: function ( geometry, vertice_position ) {
 		var i;
 		for ( i = 0; i < geometry.vertices.length; i++ ) {
-			if ( geometry.vertices[i].position.x === vertice_position.x && geometry.vertices[i].position.y === vertice_position.y && geometry.vertices[i].position.z === vertice_position.z ) {
+			if ( geometry.vertices[i].x === vertice_position.x && geometry.vertices[i].y === vertice_position.y && geometry.vertices[i].z === vertice_position.z ) {
 				// Vertice already exists
 				return i;
 			}
 		};
 		
-		geometry.vertices.push( new THREE.Vertex( new THREE.Vector3( vertice_position.x, vertice_position.y, vertice_position.z ) ) );
+		geometry.vertices.push( new THREE.Vector3( vertice_position.x, vertice_position.y, vertice_position.z ) );
 		return geometry.vertices.length - 1;
 	}
 };
