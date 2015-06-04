@@ -75,7 +75,7 @@ THREE.CSG = {
 			// Vertices
 			vertices = [];
 			for ( j = 0; j < polygons[i].vertices.length; j++ ) {
-				vertices.push( this.getGeometryVertice( three_geometry, polygons[i].vertices[j].pos ) );
+				vertices.push( THREE.CSG.getGeometryVertice( three_geometry, polygons[i].vertices[j].pos ) );
 			}
 			if ( vertices[0] === vertices[vertices.length - 1] ) {
 				vertices.pop( );
