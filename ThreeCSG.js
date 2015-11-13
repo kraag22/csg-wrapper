@@ -10,7 +10,7 @@
 
 THREE.CSG = {
 	toCSG: function ( three_model, offset, rotation ) {
-		var i, geometry, offset, polygons, vertices, rotation_matrix;
+		var i, geometry, polygons, vertices, rotation_matrix;
 		
 		if ( !CSG ) {
 			throw 'CSG library not loaded. Please get a copy from https://github.com/evanw/csg.js';
